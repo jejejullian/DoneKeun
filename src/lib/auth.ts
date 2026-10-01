@@ -21,6 +21,13 @@ export const auth = betterAuth({
           message: result.error.issues[0].message,
         });
       }
+
+      return {
+        context: {
+          ...ctx,
+          body: { ...ctx.body, ...result.data },
+        },
+      };
     }),
   },
 });
