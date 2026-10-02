@@ -22,13 +22,12 @@ export default function RegisterForm() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  // State untuk menyimpan error per field
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-    setFieldErrors({}); // Reset error field sebelumnya
+    setFieldErrors({}); 
 
     const parsed = registerSchema.safeParse({ name, email, password, confirmPassword });
 
@@ -49,7 +48,7 @@ export default function RegisterForm() {
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            router.push("/todos");
           },
           onError: (ctx) => {
             setError(ctx.error.message);
@@ -57,8 +56,8 @@ export default function RegisterForm() {
           },
         },
       );
-    } catch (e) {
-      console.error("Registration failed:", e);
+    } catch (err) {
+      console.error("Registration failed:", err);
       setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
@@ -71,7 +70,7 @@ export default function RegisterForm() {
           <CardTitle className="text-2xl text-center font-bold">Buat Akun</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             {/* Username */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="register-username">Username</Label>
