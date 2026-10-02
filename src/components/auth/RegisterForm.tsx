@@ -27,7 +27,7 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-    setFieldErrors({}); 
+    setFieldErrors({});
 
     const parsed = registerSchema.safeParse({ name, email, password, confirmPassword });
 
@@ -44,7 +44,7 @@ export default function RegisterForm() {
           name: parsed.data.name,
           email: parsed.data.email,
           password: parsed.data.password,
-          callbackURL: "/dashboard",
+          callbackURL: "/todos",
         },
         {
           onSuccess: () => {
@@ -52,13 +52,14 @@ export default function RegisterForm() {
           },
           onError: (ctx) => {
             setError(ctx.error.message);
-            setLoading(false);
           },
         },
       );
     } catch (err) {
       console.error("Registration failed:", err);
       setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    } finally {
       setLoading(false);
     }
   };
@@ -74,62 +75,27 @@ export default function RegisterForm() {
             {/* Username */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="register-username">Username</Label>
-              <Input
-                id="register-username"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoFocus
-                className="h-10"
-              />
-              {fieldErrors.name?.[0] && (
-                <p className="text-sm text-red-500">{fieldErrors.name[0]}</p>
-              )}
+              <Input id="register-username" type="text" value={name} onChange={(e) => setName(e.target.value)} required autoFocus className="h-10" />
+              {fieldErrors.name?.[0] && <p className="text-sm text-red-500">{fieldErrors.name[0]}</p>}
             </div>
 
             {/* Email */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="register-email">Email</Label>
-              <Input
-                id="register-email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="h-10"
-              />
-              {fieldErrors.email?.[0] && (
-                <p className="text-sm text-red-500">{fieldErrors.email[0]}</p>
-              )}
+              <Input id="register-email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-10" />
+              {fieldErrors.email?.[0] && <p className="text-sm text-red-500">{fieldErrors.email[0]}</p>}
             </div>
 
             {/* Password */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="register-password">Password</Label>
               <div className="relative">
-                <Input
-                  id="register-password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="h-10 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
+                <Input id="register-password" type={showPassword ? "text" : "password"} placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-10 pr-10" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer" aria-label={showPassword ? "Hide password" : "Show password"}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {fieldErrors.password?.[0] && (
-                <p className="text-sm text-red-500">{fieldErrors.password[0]}</p>
-              )}
+              {fieldErrors.password?.[0] && <p className="text-sm text-red-500">{fieldErrors.password[0]}</p>}
             </div>
 
             {/* Confirm Password */}
@@ -154,9 +120,7 @@ export default function RegisterForm() {
                   {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {fieldErrors.confirmPassword?.[0] && (
-                <p className="text-sm text-red-500">{fieldErrors.confirmPassword[0]}</p>
-              )}
+              {fieldErrors.confirmPassword?.[0] && <p className="text-sm text-red-500">{fieldErrors.confirmPassword[0]}</p>}
             </div>
 
             {/* Global Error (dari server) */}
