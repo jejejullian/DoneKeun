@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { registerSchema } from "@/lib/validations/auth";
-import { z } from "zod";
+import z  from "zod";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -52,14 +52,13 @@ export default function RegisterForm() {
           },
           onError: (ctx) => {
             setError(ctx.error.message);
+            setLoading(false);
           },
         },
       );
     } catch (err) {
       console.error("Registration failed:", err);
       setError("An unexpected error occurred. Please try again.");
-      setLoading(false);
-    } finally {
       setLoading(false);
     }
   };
