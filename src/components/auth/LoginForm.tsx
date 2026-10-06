@@ -11,6 +11,7 @@ import { Input } from "../ui/input";
 import { Spinner } from "../ui/spinner";
 import { loginSchema } from "@/lib/validations/auth";
 import z from "zod";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -54,14 +55,14 @@ export default function LoginForm() {
       );
     } catch (err) {
       console.error("Login failed:", err);
-      setError("An unexpected error ocured. Please try again.");
+      setError("An unexpected error occured. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <main className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-sm rounded-2xl border">
         <CardHeader>
           <CardTitle className="text-2xl text-center font-bold">Login</CardTitle>
         </CardHeader>
@@ -89,7 +90,7 @@ export default function LoginForm() {
             {/* Global Error (dari server) */}
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full h-10 cursor-pointer rounded-2xl">
               {loading ? (
                 <div className="flex items-center gap-2">
                   <Spinner />
@@ -100,6 +101,14 @@ export default function LoginForm() {
               )}
             </Button>
           </form>
+
+          {/* Register Link */}
+          <p className="text-center text-muted-foreground text-sm pt-4">
+             Don&apos;t have an account?{" "}
+            <Link href="/register" className="text-primary font-medium hover:underline">
+              Sign up
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>
