@@ -84,7 +84,7 @@ enum TodoStatus {
 }
 
 model Todo {
-  id          String     @id @default(cuid())
+  id          String     @id @default(cuid(2))
   title       String
   description String?
   status      TodoStatus @default(TODO)
@@ -101,7 +101,7 @@ model Todo {
 }
 
 model Tag {
-  id      String    @id @default(cuid())
+  id      String    @id @default(cuid(2))
   name    String
   userId  String
   user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -112,7 +112,7 @@ model Tag {
 }
 
 model TodoTag {
-  id     String @id @default(cuid())
+  id     String @id @default(cuid(2))
   todoId String
   tagId  String
   todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
