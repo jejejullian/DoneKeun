@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -71,80 +71,115 @@ export default function RegisterForm() {
           <CardTitle className="text-2xl text-center font-bold">Buat Akun</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-            {/* Username */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="register-username">Username</Label>
-              <Input id="register-username" type="text" value={name} onChange={(e) => setName(e.target.value)} required autoFocus className="h-10" />
-              {fieldErrors.name?.[0] && <p className="text-sm text-red-500">{fieldErrors.name[0]}</p>}
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="register-email">Email</Label>
-              <Input id="register-email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-10" />
-              {fieldErrors.email?.[0] && <p className="text-sm text-red-500">{fieldErrors.email[0]}</p>}
-            </div>
-
-            {/* Password */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="register-password">Password</Label>
-              <div className="relative">
-                <Input id="register-password" type={showPassword ? "text" : "password"} placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-10 pr-10" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer" aria-label={showPassword ? "Hide password" : "Show password"}>
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              {fieldErrors.password?.[0] && <p className="text-sm text-red-500">{fieldErrors.password[0]}</p>}
-            </div>
-
-            {/* Confirm Password */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="register-confirm-password">Confirm Password</Label>
-              <div className="relative">
+          <form onSubmit={handleSubmit} noValidate>
+            <FieldGroup className="gap-4">
+              {/* Username */}
+              <Field data-invalid={!!fieldErrors.name}>
+                <FieldLabel htmlFor="register-username">Username</FieldLabel>
                 <Input
-                  id="register-confirm-password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Ulangi password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  id="register-username"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-10 pr-10"
+                  autoFocus
+                  aria-invalid={!!fieldErrors.name}
+                  className="h-10"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
-                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
-                >
-                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              {fieldErrors.confirmPassword?.[0] && <p className="text-sm text-red-500">{fieldErrors.confirmPassword[0]}</p>}
-            </div>
+                {fieldErrors.name?.[0] && <FieldError>{fieldErrors.name[0]}</FieldError>}
+              </Field>
 
-            {/* Global Error (dari server) */}
-            {error && <p className="text-sm text-red-500">{error}</p>}
+              {/* Email */}
+              <Field data-invalid={!!fieldErrors.email}>
+                <FieldLabel htmlFor="register-email">Email</FieldLabel>
+                <Input
+                  id="register-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  aria-invalid={!!fieldErrors.email}
+                  className="h-10"
+                />
+                {fieldErrors.email?.[0] && <FieldError>{fieldErrors.email[0]}</FieldError>}
+              </Field>
 
-            <Button type="submit" disabled={loading} className="w-full h-10 cursor-pointer rounded-2xl">
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <Spinner />
-                  <span>Signing up...</span>
+              {/* Password */}
+              <Field data-invalid={!!fieldErrors.password}>
+                <FieldLabel htmlFor="register-password">Password</FieldLabel>
+                <div className="relative">
+                  <Input
+                    id="register-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    aria-invalid={!!fieldErrors.password}
+                    className="h-10 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
+                {fieldErrors.password?.[0] && <FieldError>{fieldErrors.password[0]}</FieldError>}
+              </Field>
+
+              {/* Confirm Password */}
+              <Field data-invalid={!!fieldErrors.confirmPassword}>
+                <FieldLabel htmlFor="register-confirm-password">Confirm Password</FieldLabel>
+                <div className="relative">
+                  <Input
+                    id="register-confirm-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Ulangi password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    aria-invalid={!!fieldErrors.confirmPassword}
+                    className="h-10 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {fieldErrors.confirmPassword?.[0] && <FieldError>{fieldErrors.confirmPassword[0]}</FieldError>}
+              </Field>
+
+              {/* Global Error (dari server) */}
+              {error && <FieldError>{error}</FieldError>}
+
+              <Button type="submit" disabled={loading} className="w-full h-10 cursor-pointer rounded-2xl">
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <Spinner />
+                    <span>Signing up...</span>
+                  </div>
+                ) : (
+                  "Sign Up"
+                )}
+              </Button>
+            </FieldGroup>
           </form>
 
-          {/* Login Link  */}
+          {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground pt-4">
-              Already have an account?{" "}
-              <Link href="/login" className="font-medium text-primary hover:underline">
-                Sign in
-              </Link>
-            </p>
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium text-primary hover:underline">
+              Sign in
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>
