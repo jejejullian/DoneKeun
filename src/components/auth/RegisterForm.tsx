@@ -76,32 +76,14 @@ export default function RegisterForm() {
               {/* Username */}
               <Field data-invalid={!!fieldErrors.name}>
                 <FieldLabel htmlFor="register-username">Username</FieldLabel>
-                <Input
-                  id="register-username"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  autoFocus
-                  aria-invalid={!!fieldErrors.name}
-                  className="h-10"
-                />
+                <Input id="register-username" type="text" value={name} onChange={(e) => setName(e.target.value)} required autoFocus aria-invalid={!!fieldErrors.name} className="h-10" />
                 {fieldErrors.name?.[0] && <FieldError>{fieldErrors.name[0]}</FieldError>}
               </Field>
 
               {/* Email */}
               <Field data-invalid={!!fieldErrors.email}>
                 <FieldLabel htmlFor="register-email">Email</FieldLabel>
-                <Input
-                  id="register-email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  aria-invalid={!!fieldErrors.email}
-                  className="h-10"
-                />
+                <Input id="register-email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required aria-invalid={!!fieldErrors.email} className="h-10" />
                 {fieldErrors.email?.[0] && <FieldError>{fieldErrors.email[0]}</FieldError>}
               </Field>
 
@@ -119,12 +101,7 @@ export default function RegisterForm() {
                     aria-invalid={!!fieldErrors.password}
                     className="h-10 pr-10"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer" aria-label={showPassword ? "Hide password" : "Show password"}>
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
