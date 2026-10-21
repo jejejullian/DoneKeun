@@ -14,12 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
+import { STATUS_OPTIONS } from "@/lib/todo-status";
 
-const STATUS_OPTIONS = [
-  { value: TodoStatus.TODO, label: "To do" },
-  { value: TodoStatus.IN_PROGRESS, label: "In progress" },
-  { value: TodoStatus.DONE, label: "Done" },
-];
 
 export default function TodoDialog() {
   const [open, setOpen] = useState(false);
