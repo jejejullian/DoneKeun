@@ -1,9 +1,8 @@
-import { TodoStatus } from "@/generated/prisma/enums";
 import { STATUS_OPTIONS } from "@/lib/todo-status";
+import type { Todo } from "@/generated/prisma/client";
+import TodoCard from "./TodoCard";
 
-type BoardTodo = { id: string; title: string; status: TodoStatus };
-
-export default function TodoBoard({ todos }: { todos: BoardTodo[] }) {
+export default function TodoBoard({ todos }: { todos: Todo[] }) {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {STATUS_OPTIONS.map((col) => {
@@ -22,8 +21,8 @@ export default function TodoBoard({ todos }: { todos: BoardTodo[] }) {
             ) : (
               <ul className="space-y-2">
                 {items.map((todo) => (
-                  <li key={todo.id} className="rounded-md border bg-card p-3">
-                    {todo.title}
+                  <li key={todo.id}>
+                    <TodoCard todo={todo} />
                   </li>
                 ))}
               </ul>
