@@ -1,8 +1,20 @@
+/** Tanggal dibuat (ada jam) → Jakarta. */
 export function formatDate(date: Date) {
-  return new Date(date).toLocaleString("en-US", {
-    day: "2-digit",
-    month: "numeric",
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+}
+
+/** Due date (tanpa jam) → UTC. */
+export function formatDateUTC(date: Date) {
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
   });
 }
 
