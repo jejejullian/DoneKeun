@@ -8,25 +8,28 @@ import { TodoStatus } from "@/generated/prisma/enums";
 import { createTodo } from "@/app/(app)/todos/actions";
 
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { STATUS_OPTIONS } from "@/lib/todo-status";
-
+import { MAX_DESCRIPTION } from "@/lib/validations/todo";
 
 export default function TodoDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<TodoStatus>(TodoStatus.TODO);
+  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
 
   function resetForm() {
     setTitle("");
+    setDescription("");
     setStatus(TodoStatus.TODO);
     setFieldErrors({});
     setError("");
@@ -47,7 +50,7 @@ export default function TodoDialog() {
     setError("");
     setFieldErrors({});
 
-    const parsed = CreateTodoSchema.safeParse({ title, status });
+    const parsed = CreateTodoSchema.safeParse({ title, status, description });
     if (!parsed.success) {
       setFieldErrors(z.flattenError(parsed.error).fieldErrors);
       return;
@@ -55,7 +58,7 @@ export default function TodoDialog() {
 
     setLoading(true);
     try {
-      const result = await createTodo({ title, status });
+      const result = await createTodo({ title, status, description });
 
       if (!result.success) {
         if (result.fieldErrors) setFieldErrors(result.fieldErrors);
@@ -125,6 +128,16 @@ export default function TodoDialog() {
               </Select>
               {fieldErrors.status?.[0] && <FieldError>{fieldErrors.status[0]}</FieldError>}
             </Field>
+
+            <Field data-invalid={!!fieldErrors.description}>
+              <FieldLabel htmlFor="todo-description">Description</FieldLabel>
+              <Textarea id="todo-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter your Description" aria-invalid={!!fieldErrors.description} />
+              <FieldDescription className={description.length > MAX_DESCRIPTION ? "text-destructive" : ""}>
+                {description.length}/{MAX_DESCRIPTION}
+              </FieldDescription>
+              {fieldErrors.description?.[0] && <FieldError>{fieldErrors.description[0]}</FieldError>}
+            </Field>
+
             {/* Global Error (dari server) */}
             {error && <FieldError>{error}</FieldError>}
           </FieldGroup>
