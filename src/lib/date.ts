@@ -1,4 +1,7 @@
 // TAMPILAN (format untuk ditampilkan di UI)
+
+import { TodoStatus } from "@/generated/prisma/enums";
+
 // Tanggal dibuat (ada jam) → ditampilkan dalam waktu Jakarta.
 export function formatDate(date: Date) {
   return date.toLocaleDateString("en-US", {
@@ -20,7 +23,7 @@ export function formatDateUTC(date: Date) {
 }
 
 // DATABASE / SERVER (jalur UTC, string YYYY-MM-DD <-> Date UTC)
-// Date dari database (UTC) → teks YYYY-MM-DD untuk dikirim/ditampilkan di input. 
+// Date dari database (UTC) → teks YYYY-MM-DD untuk dikirim/ditampilkan di input.
 export function toDateInputValue(date: Date | null) {
   return date?.toISOString().split("T")[0] ?? "";
 }
@@ -49,4 +52,16 @@ export function fromInputDateString(value: string) {
   if (!value) return undefined;
   const [y, m, d] = value.split("-").map(Number);
   return new Date(y, m - 1, d);
+}
+
+export type DueState = "overdue" | "today" | "normal";
+
+export function getDueState(dueDate: Date, status: TodoStatus, now: Date = new Date()): DueState {
+  const dueStr = toDateInputValue(dueDate);
+  const todayStr = now.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
+
+  if (status === TodoStatus.DONE) return "normal";
+  if (dueStr < todayStr) return "overdue";
+  if (dueStr === todayStr) return "today";
+  return "normal";
 }
