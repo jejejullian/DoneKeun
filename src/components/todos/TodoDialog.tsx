@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, CalendarIcon, X } from "lucide-react";
 import z from "zod";
 import { CreateTodoSchema } from "@/lib/validations/todo";
 import { TodoStatus } from "@/generated/prisma/enums";
 import { createTodo } from "@/app/(app)/todos/actions";
+import { STATUS_OPTIONS } from "@/lib/todo-status";
+import { MAX_DESCRIPTION } from "@/lib/validations/todo";
+import { formatDateUTC, toInputDateString, fromInputDateString, toUTCDateFromInput } from "@/lib/date";
 
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -15,14 +18,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
-import { STATUS_OPTIONS } from "@/lib/todo-status";
-import { MAX_DESCRIPTION } from "@/lib/validations/todo";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function TodoDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<TodoStatus>(TodoStatus.TODO);
   const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [dueOpen, setDueOpen] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
@@ -30,6 +35,8 @@ export default function TodoDialog() {
   function resetForm() {
     setTitle("");
     setDescription("");
+    setDueDate("");
+    setDueOpen(false);
     setStatus(TodoStatus.TODO);
     setFieldErrors({});
     setError("");
@@ -50,7 +57,7 @@ export default function TodoDialog() {
     setError("");
     setFieldErrors({});
 
-    const parsed = CreateTodoSchema.safeParse({ title, status, description });
+    const parsed = CreateTodoSchema.safeParse({ title, status, description, dueDate });
     if (!parsed.success) {
       setFieldErrors(z.flattenError(parsed.error).fieldErrors);
       return;
@@ -58,7 +65,7 @@ export default function TodoDialog() {
 
     setLoading(true);
     try {
-      const result = await createTodo({ title, status, description });
+      const result = await createTodo({ title, status, description, dueDate });
 
       if (!result.success) {
         if (result.fieldErrors) setFieldErrors(result.fieldErrors);
@@ -129,9 +136,39 @@ export default function TodoDialog() {
               {fieldErrors.status?.[0] && <FieldError>{fieldErrors.status[0]}</FieldError>}
             </Field>
 
+            <Field data-invalid={!!fieldErrors.dueDate}>
+              <FieldLabel htmlFor="todo-due-date">Due date</FieldLabel>
+              <div className="flex gap-2">
+                <Popover open={dueOpen} onOpenChange={setDueOpen}>
+                  <PopoverTrigger id="todo-due-date" render={<Button type="button" variant="outline" className="h-10 flex-1 justify-start" aria-invalid={!!fieldErrors.dueDate} />}>
+                    <CalendarIcon className="size-4" />
+                    {dueDate ? formatDateUTC(toUTCDateFromInput(dueDate)!) : "Pick a date"}
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={fromInputDateString(dueDate)}
+                      defaultMonth={fromInputDateString(dueDate)}
+                      onSelect={(d) => {
+                        setDueDate(d ? toInputDateString(d) : "");
+                        setDueOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                {dueDate && (
+                  <Button type="button" variant="ghost" size="icon" className="size-10 cursor-pointer" aria-label="Clear due date" onClick={() => setDueDate("")}>
+                    <X className="size-4" />
+                  </Button>
+                )}
+              </div>
+              {fieldErrors.dueDate?.[0] && <FieldError>{fieldErrors.dueDate[0]}</FieldError>}
+            </Field>
+
             <Field data-invalid={!!fieldErrors.description}>
               <FieldLabel htmlFor="todo-description">Description</FieldLabel>
-              <Textarea id="todo-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter your Description" aria-invalid={!!fieldErrors.description} />
+              <Textarea id="todo-description" className="resize-none" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter your Description" aria-invalid={!!fieldErrors.description} />
               <FieldDescription className={description.length > MAX_DESCRIPTION ? "text-destructive" : ""}>
                 {description.length}/{MAX_DESCRIPTION}
               </FieldDescription>
