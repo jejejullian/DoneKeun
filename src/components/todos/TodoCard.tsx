@@ -3,6 +3,7 @@ import { formatDate, formatDateUTC, getDueState } from "@/lib/date";
 import type { DueState } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
+import TodoStatusButton from "./TodoStatusButton";
 
 const DUE_STYLES: Record<DueState, string> = {
   overdue: "border-destructive bg-destructive/20 text-red-800 dark:text-destructive",
@@ -30,8 +31,12 @@ export default function TodoCard({ todo }: { todo: Todo }) {
       {/* Deskripsi */}
       {todo.description && <p className="mt-2 line-clamp-2 wrap-anywhere whitespace-pre-line text-sm text-muted-foreground first-letter:uppercase">{todo.description}</p>}
 
-      {/* Tanggal */}
-      <div className="mt-3 text-sm text-muted-foreground">{formatDate(todo.createdAt)}</div>
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-3 text-sm text-muted-foreground">
+        <span>{formatDate(todo.createdAt)}</span>
+
+        <TodoStatusButton id={todo.id} status={todo.status} />
+      </div>
     </div>
   );
 }
