@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { CreateTodoSchema, UpdateStatusSchema } from "@/lib/validations/todo";
+import { CreateTodoSchema, DeleteTodoSchema, UpdateStatusSchema } from "@/lib/validations/todo";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { toUTCDateFromInput } from "@/lib/date";
@@ -96,5 +96,42 @@ export async function updateTodoStatus(data: z.input<typeof UpdateStatusSchema>)
   } catch (err) {
     console.error("Failed update todo", err);
     return { success: false as const, message: "Failed to update todo." };
+  }
+}
+
+export async function deleteTodo(data: z.input<typeof DeleteTodoSchema>) {
+  const session = await getSession();
+
+  const parsed = DeleteTodoSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return {
+      success: false as const,
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+    };
+  }
+
+  const { id } = parsed.data;
+
+  try {
+    const { count: deleteCount } = await prisma.todo.deleteMany({
+      where: {
+        id,
+        userId: session.user.id,
+      },
+    });
+
+    if (deleteCount === 0) {
+      return {
+        success: false as const,
+        message: "Todo not found",
+      };
+    }
+
+    revalidatePath("/todos");
+    return { success: true as const };
+  } catch (err) {
+    console.error("Failed delete todo", err);
+    return { success: false as const, message: "Failed to delete todo." };
   }
 }

@@ -29,3 +29,7 @@ export const UpdateStatusSchema = z.object({
   id: z.cuid2(),
   status: z.enum(TodoStatus),
 });
+
+export const DeleteTodoSchema = z.object({
+  id: z.cuid2(),
+});
