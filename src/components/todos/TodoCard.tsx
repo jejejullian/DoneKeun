@@ -4,6 +4,7 @@ import type { DueState } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import TodoStatusButton from "./TodoStatusButton";
+import TodoDeleteButton from "./TodoDeleteButton";
 
 const DUE_STYLES: Record<DueState, string> = {
   overdue: "border-destructive bg-destructive/20 text-red-800 dark:text-destructive",
@@ -32,10 +33,13 @@ export default function TodoCard({ todo }: { todo: Todo }) {
       {todo.description && <p className="mt-2 line-clamp-2 wrap-anywhere whitespace-pre-line text-sm text-muted-foreground first-letter:uppercase">{todo.description}</p>}
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 text-sm text-muted-foreground">
+      <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
         <span>{formatDate(todo.createdAt)}</span>
 
-        <TodoStatusButton id={todo.id} status={todo.status} />
+        <div className="flex items-center gap-1">
+          <TodoDeleteButton id={todo.id} title={todo.title} />
+          <TodoStatusButton id={todo.id} status={todo.status} />
+        </div>
       </div>
     </div>
   );
