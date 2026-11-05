@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, CalendarIcon, X } from "lucide-react";
+import { Plus, CalendarIcon, X, Pencil } from "lucide-react";
 import z from "zod";
 import { CreateTodoSchema } from "@/lib/validations/todo";
 import { TodoStatus } from "@/generated/prisma/enums";
-import { createTodo } from "@/app/(app)/todos/actions";
+import { createTodo, updateTodo } from "@/app/(app)/todos/actions";
 import { STATUS_OPTIONS } from "@/lib/todo-status";
 import { MAX_DESCRIPTION } from "@/lib/validations/todo";
 import { formatDateUTC, toInputDateString, fromInputDateString, toUTCDateFromInput } from "@/lib/date";
@@ -21,23 +21,28 @@ import { toast } from "@/components/ui/toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export default function TodoDialog() {
+type TodoDialogProps = {
+  todo?: { id: string; title: string; description: string | null; status: TodoStatus; dueDate: string };
+};
+
+export default function TodoDialog({ todo }: TodoDialogProps) {
+  const isEdit = todo !== undefined;
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [status, setStatus] = useState<TodoStatus>(TodoStatus.TODO);
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [title, setTitle] = useState(todo?.title ?? "");
+  const [status, setStatus] = useState<TodoStatus>(todo?.status ?? TodoStatus.TODO);
+  const [description, setDescription] = useState(todo?.description ?? "");
+  const [dueDate, setDueDate] = useState(todo?.dueDate ?? "");
   const [dueOpen, setDueOpen] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
 
   function resetForm() {
-    setTitle("");
-    setDescription("");
-    setDueDate("");
+    setTitle(todo?.title ?? "");
+    setDescription(todo?.description ?? "");
+    setDueDate(todo?.dueDate ?? "");
     setDueOpen(false);
-    setStatus(TodoStatus.TODO);
+    setStatus(todo?.status ?? TodoStatus.TODO);
     setFieldErrors({});
     setError("");
   }
@@ -48,7 +53,7 @@ export default function TodoDialog() {
       return;
     }
     setOpen(next);
-    if (!next) resetForm();
+    if (next) resetForm();
   }
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -65,7 +70,7 @@ export default function TodoDialog() {
 
     setLoading(true);
     try {
-      const result = await createTodo({ title, status, description, dueDate });
+      const result = isEdit ? await updateTodo({ id: todo.id, title, status, description, dueDate }) : await createTodo({ title, status, description, dueDate });
 
       if (!result.success) {
         if (result.fieldErrors) setFieldErrors(result.fieldErrors);
@@ -76,7 +81,7 @@ export default function TodoDialog() {
 
       toast.add({
         type: "success",
-        description: "Todo created",
+        description: isEdit ? "Todo updated" : "Todo created",
       });
 
       handleOpenChange(false);
@@ -92,16 +97,22 @@ export default function TodoDialog() {
     <Dialog disablePointerDismissal open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button className="flex items-center px-4 h-8 cursor-pointer rounded-2xl bg-primary text-primary-foreground hover:bg-primary-hover">
-            <Plus className="size-5" /> Add todo
-          </Button>
+          isEdit ? (
+            <Button className="cursor-pointer" variant="ghost" size="icon-sm" aria-label="Edit todo">
+              <Pencil />
+            </Button>
+          ) : (
+            <Button aria-label="Add todo" className="flex items-center px-4 h-8 cursor-pointer rounded-2xl bg-primary text-primary-foreground hover:bg-primary-hover">
+              <Plus className="size-5" /> Add todo
+            </Button>
+          )
         }
       />
 
       <DialogContent className="sm:max-w-sm">
         <form onSubmit={handleSubmit} noValidate className="grid gap-4">
           <DialogHeader>
-            <DialogTitle>Add Todo</DialogTitle>
+            <DialogTitle>{isEdit ? "Edit Todo" : "Add Todo"}</DialogTitle>
           </DialogHeader>
 
           <FieldGroup>
