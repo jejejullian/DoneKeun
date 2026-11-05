@@ -65,3 +65,7 @@ export function getDueState(dueDate: Date, status: TodoStatus, now: Date = new D
   if (dueStr === todayStr) return "today";
   return "normal";
 }
+
+export function getDoneCutoff() {
+  return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+}
