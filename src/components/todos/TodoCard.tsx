@@ -1,5 +1,6 @@
 import type { Todo } from "@/generated/prisma/client";
-import { formatDate, formatDateUTC, getDueState } from "@/lib/date";
+import TodoDialog from "./TodoDialog";
+import { formatDate, formatDateUTC, getDueState, toDateInputValue } from "@/lib/date";
 import type { DueState } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
@@ -37,6 +38,15 @@ export default function TodoCard({ todo }: { todo: Todo }) {
         <span>{formatDate(todo.createdAt)}</span>
 
         <div className="flex items-center gap-1">
+          <TodoDialog
+            todo={{
+              id: todo.id,
+              title: todo.title,
+              description: todo.description,
+              status: todo.status,
+              dueDate: todo.dueDate ? toDateInputValue(todo.dueDate) : "",
+            }}
+          />
           <TodoDeleteButton id={todo.id} title={todo.title} />
           <TodoStatusButton id={todo.id} status={todo.status} />
         </div>
