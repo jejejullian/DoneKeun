@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { CreateTodoSchema, DeleteTodoSchema, UpdateStatusSchema } from "@/lib/validations/todo";
+import { CreateTodoSchema, DeleteTodoSchema, UpdateStatusSchema, UpdateTodoSchema } from "@/lib/validations/todo";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { toUTCDateFromInput } from "@/lib/date";
@@ -133,5 +133,66 @@ export async function deleteTodo(data: z.input<typeof DeleteTodoSchema>) {
   } catch (err) {
     console.error("Failed delete todo", err);
     return { success: false as const, message: "Failed to delete todo." };
+  }
+}
+
+export async function updateTodo(data: z.input<typeof UpdateTodoSchema>) {
+  const session = await getSession();
+
+  const parsed = UpdateTodoSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return {
+      success: false as const,
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+    };
+  }
+
+  const { id, title, description, status, dueDate } = parsed.data;
+  const dueDateConverted = toUTCDateFromInput(dueDate);
+
+  try {
+    const existing = await prisma.todo.findFirst({
+      where: {
+        id,
+        userId: session.user.id,
+      },
+    });
+
+    if (!existing) {
+      return {
+        success: false as const,
+        message: "Todo not found",
+      };
+    }
+
+     let completedAt: Date | null = null;
+
+    if (status === TodoStatus.DONE) {
+      completedAt = existing.status === TodoStatus.DONE ? existing.completedAt : new Date();
+    }
+
+    await prisma.todo.updateMany({
+      where: {
+        id,
+        userId: session.user.id,
+      },
+      data: {
+        title,
+        description,
+        status,
+        dueDate: dueDateConverted,
+        completedAt,
+      },
+    });
+
+    revalidatePath("/todos");
+    return { success: true as const };
+  } catch (err) {
+    console.error("Failed to update todo", err);
+    return {
+      success: false as const,
+      message: "Failed to update todo.",
+    };
   }
 }
